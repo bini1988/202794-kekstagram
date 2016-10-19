@@ -87,17 +87,12 @@
       // NB! Такие параметры сохраняются на время всего процесса отрисовки
       // canvas'a поэтому важно вовремя поменять их, если нужно начать отрисовку
       // чего-либо с другой обводкой.
-      var DASH_LINE_WIDTH = 6;
+      var LINE_WIDTH = 6;
 
       // Толщина линии.
-      this._ctx.lineWidth = DASH_LINE_WIDTH;
-      // Цвет обводки.
-      this._ctx.strokeStyle = '#ffe753';
-      // Размер штрихов. Первый элемент массива задает длину штриха, второй
-      // расстояние между соседними штрихами.
-      this._ctx.setLineDash([15, 10]);
-      // Смещение первого штриха от начала линии.
-      this._ctx.lineDashOffset = 7;
+      this._ctx.lineWidth = LINE_WIDTH;
+      // Цвет заливки.
+      this._ctx.fillStyle = '#ffe753';
 
       // Сохранение состояния канваса.
       this._ctx.save();
@@ -114,17 +109,29 @@
 
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
-      this._ctx.strokeRect(
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2);
+      var DOTS_OFFSET = 20;
+
+      var offsetX = (this._resizeConstraint.side + this._ctx.lineWidth) / 2;
+      var offsetY = (this._resizeConstraint.side + this._ctx.lineWidth) / 2;
+      var recSize = this._resizeConstraint.side - this._ctx.lineWidth / 2;
+
+      this._ctx.beginPath();
+
+      this._dotHorizontalLine(-offsetX, -offsetX + recSize, -offsetY, LINE_WIDTH / 2, DOTS_OFFSET);
+      this._dotHorizontalLine(-offsetX, -offsetX + recSize, -offsetY + recSize, LINE_WIDTH / 2, DOTS_OFFSET);
+
+      this._dotVerticallLine(-offsetY, -offsetY + recSize, -offsetX, LINE_WIDTH / 2, DOTS_OFFSET);
+      this._dotVerticallLine(-offsetY, -offsetY + recSize, -offsetX + recSize, LINE_WIDTH / 2, DOTS_OFFSET);
+
+      this._ctx.closePath();
+
+      this._ctx.fill();
 
       // Отрисовка полупрозрачного слоя вокруг жёлтой рамки кадрирования
       this._ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
 
-      var offsetX = this._container.width / 2;
-      var offsetY = this._container.height / 2;
+      offsetX = this._container.width / 2;
+      offsetY = this._container.height / 2;
 
       // Внешний прямоугольник
       this._ctx.beginPath();
@@ -142,10 +149,10 @@
       offsetX = offsetX - paddingLeft;
       offsetY = offsetY - paddingTop;
 
-      this._ctx.moveTo(-offsetX - DASH_LINE_WIDTH, -offsetY - DASH_LINE_WIDTH);
-      this._ctx.lineTo(-offsetX - DASH_LINE_WIDTH, -offsetY - DASH_LINE_WIDTH / 2 + sideSize);
-      this._ctx.lineTo(-offsetX - DASH_LINE_WIDTH / 2 + sideSize, -offsetY - DASH_LINE_WIDTH / 2 + sideSize);
-      this._ctx.lineTo(-offsetX - DASH_LINE_WIDTH / 2 + sideSize, -offsetY - DASH_LINE_WIDTH);
+      this._ctx.moveTo(-offsetX - LINE_WIDTH, -offsetY - LINE_WIDTH);
+      this._ctx.lineTo(-offsetX - LINE_WIDTH, -offsetY - LINE_WIDTH / 2 + sideSize);
+      this._ctx.lineTo(-offsetX - LINE_WIDTH / 2 + sideSize, -offsetY - LINE_WIDTH / 2 + sideSize);
+      this._ctx.lineTo(-offsetX - LINE_WIDTH / 2 + sideSize, -offsetY - LINE_WIDTH);
       this._ctx.closePath();
 
       this._ctx.fill();
@@ -153,12 +160,12 @@
       // Надпись на фото
       var photoSizeStr = this._image.naturalWidth + ' x ' + this._image.naturalHeight;
 
-      this._ctx.fillStyle = '#ffffff';
+      this._ctx.fillStyle = 'rgba(255, 255, 255, 1)';
       this._ctx.font = '14px Open Sans, Arial, sans-serif';
 
       var photoSizeStrWidth = this._ctx.measureText(photoSizeStr).width;
 
-      this._ctx.fillText(photoSizeStr, -photoSizeStrWidth / 2, -offsetY - DASH_LINE_WIDTH * 2);
+      this._ctx.fillText(photoSizeStr, -photoSizeStrWidth / 2, -offsetY - LINE_WIDTH * 2);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
@@ -168,7 +175,54 @@
       // сложные рассчеты для координат прямоугольника, который нужно очистить.
       this._ctx.restore();
     },
+    /**
+     * Рисует линию из точек заданного радиуса
+     * @param {number} x0
+     * @param {number} x1
+     * @param {number} y
+     * @param {number} radius
+     * @param {number} dotOffset
+     * @private
+     */
+    _dotHorizontalLine: function(x0, x1, y, radius, dotOffset) {
 
+      var dots = Math.round((x1 - x0) / dotOffset);
+
+      dotOffset = (x1 - x0) / dots;
+
+      for(var i = 0; i <= dots; i++) {
+
+        var x = x0 + dotOffset * i;
+
+        this._ctx.moveTo(x, y);
+
+        this._ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      }
+    },
+    /**
+     * Рисует линию из точек заданного радиуса
+     * @param {number} x0
+     * @param {number} x1
+     * @param {number} y
+     * @param {number} radius
+     * @param {number} dotOffset
+     * @private
+     */
+    _dotVerticallLine: function(y0, y1, x, radius, dotOffset) {
+
+      var dots = Math.round((y1 - y0) / dotOffset);
+
+      dotOffset = (y1 - y0) / dots;
+
+      for(var i = 0; i <= dots; i++) {
+
+        var y = y0 + dotOffset * i;
+
+        this._ctx.moveTo(x, y);
+
+        this._ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      }
+    },
     /**
      * Включение режима перемещения. Запоминается текущее положение курсора,
      * устанавливается флаг, разрешающий перемещение и добавляются обработчики,
