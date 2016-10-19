@@ -87,9 +87,10 @@
       // NB! Такие параметры сохраняются на время всего процесса отрисовки
       // canvas'a поэтому важно вовремя поменять их, если нужно начать отрисовку
       // чего-либо с другой обводкой.
+      var DASH_LINE_WIDTH = 6;
 
       // Толщина линии.
-      this._ctx.lineWidth = 6;
+      this._ctx.lineWidth = DASH_LINE_WIDTH;
       // Цвет обводки.
       this._ctx.strokeStyle = '#ffe753';
       // Размер штрихов. Первый элемент массива задает длину штриха, второй
@@ -118,6 +119,46 @@
           (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
           this._resizeConstraint.side - this._ctx.lineWidth / 2,
           this._resizeConstraint.side - this._ctx.lineWidth / 2);
+
+      // Отрисовка полупрозрачного слоя вокруг жёлтой рамки кадрирования
+      this._ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+
+      var offsetX = this._container.width / 2;
+      var offsetY = this._container.height / 2;
+
+      // Внешний прямоугольник
+      this._ctx.beginPath();
+      this._ctx.moveTo(-offsetX, -offsetY);
+      this._ctx.lineTo(this._container.width, -offsetY);
+      this._ctx.lineTo(this._container.width, this._container.height);
+      this._ctx.lineTo(-offsetX, this._container.height);
+      this._ctx.closePath();
+
+      // Внутренний квадрат
+      var sideSize = this._resizeConstraint.side;
+      var paddingTop = (this._container.height - sideSize) / 2;
+      var paddingLeft = (this._container.width - sideSize) / 2;
+
+      offsetX = offsetX - paddingLeft;
+      offsetY = offsetY - paddingTop;
+
+      this._ctx.moveTo(-offsetX - DASH_LINE_WIDTH, -offsetY - DASH_LINE_WIDTH);
+      this._ctx.lineTo(-offsetX - DASH_LINE_WIDTH, -offsetY - DASH_LINE_WIDTH / 2 + sideSize);
+      this._ctx.lineTo(-offsetX - DASH_LINE_WIDTH / 2 + sideSize, -offsetY - DASH_LINE_WIDTH / 2 + sideSize);
+      this._ctx.lineTo(-offsetX - DASH_LINE_WIDTH / 2 + sideSize, -offsetY - DASH_LINE_WIDTH);
+      this._ctx.closePath();
+
+      this._ctx.fill();
+
+      // Надпись на фото
+      var photoSizeStr = this._image.naturalWidth + ' x ' + this._image.naturalHeight;
+
+      this._ctx.fillStyle = '#ffffff';
+      this._ctx.font = '14px Open Sans, Arial, sans-serif';
+
+      var photoSizeStrWidth = this._ctx.measureText(photoSizeStr).width;
+
+      this._ctx.fillText(photoSizeStr, -photoSizeStrWidth / 2, -offsetY - DASH_LINE_WIDTH * 2);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
