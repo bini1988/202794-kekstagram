@@ -1,6 +1,6 @@
 'use strict';
 
-function getMessage(a, b) {
+var getMessage = function(a, b) {
 
   var outMessage = 'Переданы некорректные данные';
 
@@ -35,5 +35,5 @@ function getMessage(a, b) {
   }
 
   return outMessage;
-}
+};
 
