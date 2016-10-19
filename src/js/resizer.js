@@ -121,7 +121,7 @@
           this._resizeConstraint.side - this._ctx.lineWidth / 2);
 
       // Отрисовка полупрозрачного слоя вокруг жёлтой рамки кадрирования
-      this._ctx.fillStyle  = "rgba(0, 0, 0, 0.8)";
+      this._ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
 
       var offsetX = this._container.width / 2;
       var offsetY = this._container.height / 2;
@@ -150,6 +150,15 @@
 
       this._ctx.fill();
 
+      // Надпись на фото
+      var photoSizeStr = this._image.naturalWidth + ' x ' + this._image.naturalHeight;
+
+      this._ctx.fillStyle = '#ffffff';
+      this._ctx.font = '14px Open Sans, Arial, sans-serif';
+
+      var photoSizeStrWidth = this._ctx.measureText(photoSizeStr).width;
+
+      this._ctx.fillText(photoSizeStr, -photoSizeStrWidth / 2, -offsetY - DASH_LINE_WIDTH * 2);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
