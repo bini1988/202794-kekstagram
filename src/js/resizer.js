@@ -106,7 +106,7 @@
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
       var STEP_WITH = 25;
-      var DOT_RADIUS = 2;
+      //var DOT_RADIUS = 2;
 
       var sideSize = this._resizeConstraint.side - this._ctx.lineWidth;
       var offsetX = sideSize / 2;
