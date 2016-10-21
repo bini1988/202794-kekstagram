@@ -31,15 +31,15 @@
 
       // Размер меньшей стороны изображения.
       var side = Math.min(
-          this._container.width * INITIAL_SIDE_RATIO,
-          this._container.height * INITIAL_SIDE_RATIO);
+        this._container.width * INITIAL_SIDE_RATIO,
+        this._container.height * INITIAL_SIDE_RATIO);
 
       // Изначально предлагаемое кадрирование — часть по центру с размером в 3/4
       // от размера меньшей стороны.
       this._resizeConstraint = new Square(
-          this._container.width / 2 - side / 2,
-          this._container.height / 2 - side / 2,
-          side);
+        this._container.width / 2 - side / 2,
+        this._container.height / 2 - side / 2,
+        side);
 
       // Отрисовка изначального состояния канваса.
       this.setConstraint();
@@ -87,12 +87,8 @@
       // NB! Такие параметры сохраняются на время всего процесса отрисовки
       // canvas'a поэтому важно вовремя поменять их, если нужно начать отрисовку
       // чего-либо с другой обводкой.
-      var LINE_WIDTH = 6;
-
       // Толщина линии.
-      this._ctx.lineWidth = LINE_WIDTH;
-      // Цвет заливки.
-      this._ctx.fillStyle = '#ffe753';
+      this._ctx.lineWidth = 2;
 
       // Сохранение состояния канваса.
       this._ctx.save();
@@ -109,55 +105,23 @@
 
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
-      var DOTS_OFFSET = 20;
+      var STEP_WITH = 25;
+      var DOT_RADIUS = 2;
 
-      var offsetX = (this._resizeConstraint.side + this._ctx.lineWidth) / 2;
-      var offsetY = (this._resizeConstraint.side + this._ctx.lineWidth) / 2;
-      var recSize = this._resizeConstraint.side - this._ctx.lineWidth / 2;
+      var sideSize = this._resizeConstraint.side - this._ctx.lineWidth;
+      var offsetX = sideSize / 2;
+      var offsetY = sideSize / 2;
 
-      this._ctx.beginPath();
+      //this._dotedRect(-offsetX, -offsetY, sideSize, sideSize, STEP_WITH, DOT_RADIUS, '#ffe753');
 
-      this._dotHorizontalLine(-offsetX, -offsetX + recSize, -offsetY, LINE_WIDTH / 2, DOTS_OFFSET);
-      this._dotHorizontalLine(-offsetX, -offsetX + recSize, -offsetY + recSize, LINE_WIDTH / 2, DOTS_OFFSET);
-
-      this._dotVerticallLine(-offsetY, -offsetY + recSize, -offsetX, LINE_WIDTH / 2, DOTS_OFFSET);
-      this._dotVerticallLine(-offsetY, -offsetY + recSize, -offsetX + recSize, LINE_WIDTH / 2, DOTS_OFFSET);
-
-      this._ctx.closePath();
-
-      this._ctx.fill();
+      this._triangleRect(-offsetX, -offsetY, sideSize, sideSize, STEP_WITH, '#ffe753');
 
       // Отрисовка полупрозрачного слоя вокруг жёлтой рамки кадрирования
-      this._ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-
-      offsetX = this._container.width / 2;
-      offsetY = this._container.height / 2;
-
-      // Внешний прямоугольник
-      this._ctx.beginPath();
-      this._ctx.moveTo(-offsetX, -offsetY);
-      this._ctx.lineTo(this._container.width, -offsetY);
-      this._ctx.lineTo(this._container.width, this._container.height);
-      this._ctx.lineTo(-offsetX, this._container.height);
-      this._ctx.closePath();
-
-      // Внутренний квадрат
-      var sideSize = this._resizeConstraint.side;
-      var paddingTop = (this._container.height - sideSize) / 2;
-      var paddingLeft = (this._container.width - sideSize) / 2;
-
-      offsetX = offsetX - paddingLeft;
-      offsetY = offsetY - paddingTop;
-
-      this._ctx.moveTo(-offsetX - LINE_WIDTH, -offsetY - LINE_WIDTH);
-      this._ctx.lineTo(-offsetX - LINE_WIDTH, -offsetY - LINE_WIDTH / 2 + sideSize);
-      this._ctx.lineTo(-offsetX - LINE_WIDTH / 2 + sideSize, -offsetY - LINE_WIDTH / 2 + sideSize);
-      this._ctx.lineTo(-offsetX - LINE_WIDTH / 2 + sideSize, -offsetY - LINE_WIDTH);
-      this._ctx.closePath();
-
-      this._ctx.fill();
+      this._drawOverlay(this._container.width, this._container.height, this._resizeConstraint.side, 'rgba(0, 0, 0, 0.8)');
 
       // Надпись на фото
+      var TEXT_BOTTOM_MARGIN = 5;
+
       var photoSizeStr = this._image.naturalWidth + ' x ' + this._image.naturalHeight;
 
       this._ctx.fillStyle = 'rgba(255, 255, 255, 1)';
@@ -165,7 +129,7 @@
 
       var photoSizeStrWidth = this._ctx.measureText(photoSizeStr).width;
 
-      this._ctx.fillText(photoSizeStr, -photoSizeStrWidth / 2, -offsetY - LINE_WIDTH * 2);
+      this._ctx.fillText(photoSizeStr, -photoSizeStrWidth / 2, -this._resizeConstraint.side / 2 - TEXT_BOTTOM_MARGIN);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
@@ -176,52 +140,141 @@
       this._ctx.restore();
     },
     /**
-     * Рисует линию из точек заданного радиуса
-     * @param {number} x0
-     * @param {number} x1
-     * @param {number} y
-     * @param {number} radius
-     * @param {number} dotOffset
+     * Рисует оверлей вокруг рамки фото
+     * @param {number} containerWidth
+     * @param {number} containerHeight
+     * @param {number} resizeConstraintSide
+     * @param {number} color
      * @private
      */
-    _dotHorizontalLine: function(x0, x1, y, radius, dotOffset) {
+    _drawOverlay: function(containerWidth, containerHeight, resizeConstraintSide, color) {
 
-      var dots = Math.round((x1 - x0) / dotOffset);
+      // Отрисовка полупрозрачного слоя вокруг жёлтой рамки кадрирования
+      this._ctx.fillStyle = color;
 
-      dotOffset = (x1 - x0) / dots;
+      var offsetX = containerWidth / 2;
+      var offsetY = containerHeight / 2;
 
-      for(var i = 0; i <= dots; i++) {
+      // Внешний прямоугольник
+      this._ctx.beginPath();
+      this._ctx.moveTo(-offsetX, -offsetY);
+      this._ctx.lineTo(containerWidth, -offsetY);
+      this._ctx.lineTo(containerWidth, containerHeight);
+      this._ctx.lineTo(-offsetX, containerHeight);
+      this._ctx.closePath();
 
-        var x = x0 + dotOffset * i;
+      // Внутренний квадрат
+      var sideSize = resizeConstraintSide;
+      var paddingTop = (containerHeight - sideSize) / 2;
+      var paddingLeft = (containerWidth - sideSize) / 2;
 
-        this._ctx.moveTo(x, y);
+      offsetX = offsetX - paddingLeft;
+      offsetY = offsetY - paddingTop;
 
-        this._ctx.arc(x, y, radius, 0, 2 * Math.PI);
-      }
+      this._ctx.moveTo(-offsetX, -offsetY);
+      this._ctx.lineTo(-offsetX, -offsetY + sideSize);
+      this._ctx.lineTo(-offsetX + sideSize, -offsetY + sideSize);
+      this._ctx.lineTo(-offsetX + sideSize, -offsetY);
+      this._ctx.closePath();
+
+      this._ctx.fill();
     },
     /**
-     * Рисует линию из точек заданного радиуса
+     * Рисует прямоугольник из зигзага
      * @param {number} x0
-     * @param {number} x1
-     * @param {number} y
-     * @param {number} radius
-     * @param {number} dotOffset
+     * @param {number} y0
+     * @param {number} width
+     * @param {number} height
+     * @param {number} stepWidth
+     * @param {number} color
      * @private
      */
-    _dotVerticallLine: function(y0, y1, x, radius, dotOffset) {
+    _triangleRect: function(x0, y0, width, height, stepWidth, color) {
 
-      var dots = Math.round((y1 - y0) / dotOffset);
+      var xStepWidth = width / Math.ceil(width / stepWidth); // Основание треугольника
+      var xBorderHeight = xStepWidth / 2; // Высота треугольника
+      var xOffset = xStepWidth / 2; // Половина основаная треугольника
 
-      dotOffset = (y1 - y0) / dots;
+      var yStepWidth = height / Math.ceil(height / stepWidth); // Основание треугольника
+      var yBorderWidth = yStepWidth / 2; // Высота треугольника
+      var yOffset = xStepWidth / 2; // Половина основаная треугольника
 
-      for(var i = 0; i <= dots; i++) {
+      this._ctx.save();
 
-        var y = y0 + dotOffset * i;
+      this._ctx.moveTo(0, 0);
+      this._ctx.translate(x0 + width / 2, y0 + height / 2);
 
-        this._ctx.moveTo(x, y);
+      this._ctx.beginPath();
 
-        this._ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      this._ctx.strokeStyle = color;
+
+      for (var angle = 0; angle <= 360; angle = angle + 180) {
+
+        for (var y = -(height / 2) + yOffset; y <= (height / 2); y = y + yStepWidth) {
+
+          this._ctx.moveTo((width / 2 - yBorderWidth), y - yOffset);
+          this._ctx.lineTo((width / 2 - yBorderWidth) + xBorderHeight, y);
+          this._ctx.lineTo((width / 2 - yBorderWidth), y + yOffset);
+        }
+
+        for (var x = -(width / 2) + xStepWidth; x <= (width / 2 - yBorderWidth); x = x + xStepWidth) {
+
+          this._ctx.moveTo(x - xOffset, (height / 2 - xBorderHeight) + yBorderWidth);
+          this._ctx.lineTo(x, (height / 2 - xBorderHeight));
+          this._ctx.lineTo(x + xOffset, (height / 2 - xBorderHeight) + yBorderWidth);
+        }
+
+        this._ctx.rotate(angle * Math.PI / 180);
       }
+
+      this._ctx.stroke();
+      this._ctx.closePath();
+      this._ctx.restore();
+    },
+    /**
+     * Рисует прямоугольник из точек
+     * @param {number} x0
+     * @param {number} y0
+     * @param {number} width
+     * @param {number} height
+     * @param {number} stepWidth
+     * @param {number} color
+     * @private
+     */
+    _dotedRect: function(x0, y0, width, height, stepWidth, radius, color) {
+
+      var xStepWidth = width / Math.floor(width / stepWidth);
+      var yStepWidth = height / Math.floor(height / stepWidth);
+
+      this._ctx.save();
+
+      this._ctx.moveTo(0, 0);
+      this._ctx.translate(x0 + width / 2, y0 + height / 2);
+
+      this._ctx.fillStyle = color;
+
+      for (var angle = 180; angle <= 360; angle = angle + 180) {
+
+        this._ctx.beginPath();
+
+        for (var y = -height / 2; y <= (height / 2); y = y + yStepWidth) {
+
+          this._ctx.arc((width / 2), y, radius, 0, 2 * Math.PI);
+        }
+
+        for (var x = -width / 2; x <= (width / 2); x = x + xStepWidth) {
+
+          this._ctx.arc(x, (height / 2), radius, 0, 2 * Math.PI);
+        }
+
+        this._ctx.closePath();
+
+        this._ctx.fill();
+
+        this._ctx.rotate(angle * Math.PI / 180);
+      }
+
+      this._ctx.restore();
     },
     /**
      * Включение режима перемещения. Запоминается текущее положение курсора,
@@ -246,7 +299,6 @@
       document.body.removeEventListener('mousemove', this._onDrag);
       document.body.removeEventListener('mouseup', this._onDragEnd);
     },
-
     /**
      * Перемещение изображения относительно кадра.
      * @param {number} x
@@ -255,8 +307,8 @@
      */
     updatePosition: function(x, y) {
       this.moveConstraint(
-          this._cursorPosition.x - x,
-          this._cursorPosition.y - y);
+        this._cursorPosition.x - x,
+        this._cursorPosition.y - y);
       this._cursorPosition = new Coordinate(x, y);
     },
 
@@ -316,9 +368,9 @@
      */
     moveConstraint: function(deltaX, deltaY, deltaSide) {
       this.setConstraint(
-          this._resizeConstraint.x + (deltaX || 0),
-          this._resizeConstraint.y + (deltaY || 0),
-          this._resizeConstraint.side + (deltaSide || 0));
+        this._resizeConstraint.x + (deltaX || 0),
+        this._resizeConstraint.y + (deltaY || 0),
+        this._resizeConstraint.side + (deltaSide || 0));
     },
 
     /**
@@ -376,9 +428,7 @@
       var temporaryCtx = temporaryCanvas.getContext('2d');
       temporaryCanvas.width = this._resizeConstraint.side;
       temporaryCanvas.height = this._resizeConstraint.side;
-      temporaryCtx.drawImage(this._image,
-          -this._resizeConstraint.x,
-          -this._resizeConstraint.y);
+      temporaryCtx.drawImage(this._image, -this._resizeConstraint.x, -this._resizeConstraint.y);
       imageToExport.src = temporaryCanvas.toDataURL('image/png');
 
       return imageToExport;
