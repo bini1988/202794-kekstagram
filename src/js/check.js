@@ -37,3 +37,4 @@ var getMessage = function(a, b) {
   return outMessage;
 };
 
+getMessage(0, 0);
