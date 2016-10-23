@@ -7,6 +7,8 @@
 
 'use strict';
 
+var browserCookies = require('browser-cookies');
+
 (function() {
   /** @enum {string} */
   var FileType = {
@@ -41,6 +43,30 @@
    */
   var currentResizer;
 
+  /**
+   * Возвращает срок жизни cookie
+   */
+  var getCookieExpireDays = function() {
+
+    var nowDate = new Date();
+
+    var nowYear = nowDate.getFullYear();
+    var nowMonth = nowDate.getMonth() + 1;
+    var nowDay = nowDate.getDate();
+
+    var birthdayMonth = 9;
+    var birthdayDay = 12;
+
+    var birthdayDate = new Date(nowYear, birthdayMonth - 1, birthdayDay);
+
+    nowDate = new Date(nowYear, nowMonth - 1, nowDay);
+
+    if ((nowDate - birthdayDate) < 0) {
+      birthdayDate = new Date(nowYear - 1, birthdayMonth - 1, birthdayDay);
+    }
+
+    return (nowDate - birthdayDate) / 1000 / 3600 / 24;
+  };
   /**
    * Удаляет текущий объект {@link Resizer}, чтобы создать новый с другим
    * изображением.
@@ -286,8 +312,36 @@
     // убрать предыдущий примененный класс. Для этого нужно или запоминать его
     // состояние или просто перезаписывать.
     filterImage.className = 'filter-image-preview ' + filterMap[selectedFilter];
+
+    //Сохраняем значение выбранного фильтра в cookie
+    var expiresDate = { expires: getCookieExpireDays() };
+
+    browserCookies.set('upload-filter', selectedFilter, expiresDate);
+  };
+
+  /**
+   * Инициализация формы
+   */
+  var initForms = function() {
+
+    var uploadFilter = browserCookies.get('upload-filter');
+
+    var checkedUploadFilter = filterForm.querySelector('input[value="' + uploadFilter + '"]');
+
+    if (checkedUploadFilter) {
+
+      checkedUploadFilter.checked = true;
+
+      if (filterForm.onchange) {
+        filterForm.onchange();
+      }
+    }
   };
 
   cleanupResizer();
+
   updateBackground();
+
+  initForms();
+
 })();
