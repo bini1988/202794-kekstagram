@@ -225,7 +225,7 @@
    * деактивирована (добавлен атрибут disabled)
    * @param {Event} evt
    */
-  resizeForm.onchange = function(evt) {
+  resizeForm.onchange = function() {
 
     var resizeFormSubmit = resizeForm.querySelector('[type=submit]');
 
