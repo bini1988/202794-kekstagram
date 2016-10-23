@@ -72,7 +72,18 @@
    * @return {boolean}
    */
   var resizeFormIsValid = function() {
-    return true;
+
+    var imageWidth = currentResizer._image.naturalWidth;
+    var imageHeight = currentResizer._image.naturalHeight;
+
+    var resizeX = parseInt(resizeForm.querySelector('#resize-x').value, 10);
+    var resizeY = parseInt(resizeForm.querySelector('#resize-y').value, 10);
+    var resizeSize = parseInt(resizeForm.querySelector('#resize-size').value, 10);
+
+    var isValid = ((resizeX + resizeSize) <= imageWidth) &&
+      ((resizeY + resizeSize) <= imageHeight);
+
+    return isValid;
   };
 
   /**
@@ -208,6 +219,22 @@
     }
   };
 
+  /**
+   * Обработка изменения формы кадрирования. Если данные, введённые в форму, невалидны,
+   * то форму должно быть невозможно отправить. При этом кнопка отправки должна быть
+   * деактивирована (добавлен атрибут disabled)
+   * @param {Event} evt
+   */
+  resizeForm.onchange = function() {
+
+    var resizeFormSubmit = resizeForm.querySelector('[type=submit]');
+
+    if (resizeFormIsValid()) {
+      resizeFormSubmit.disabled = false;
+    } else {
+      resizeFormSubmit.disabled = true;
+    }
+  };
   /**
    * Сброс формы фильтра. Показывает форму кадрирования.
    * @param {Event} evt

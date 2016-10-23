@@ -30,13 +30,13 @@
     <input type="text" class="invisible" name="resize-image-src" id="resize-image-src">
 
     <fieldset class="upload-resize-controls">
-      <input class="upload-resize-control" type="number" id="resize-x" name="x">
+      <input class="upload-resize-control" type="number" id="resize-x" name="x" min="0" value="0" step="1">
       <label class="upload-resize-label" for="resize-x">Слева, px</label>
 
-      <input class="upload-resize-control" type="number" id="resize-y" name="y">
+      <input class="upload-resize-control" type="number" id="resize-y" name="y" min="0" value="0" step="1">
       <label class="upload-resize-label" for="resize-y">Сверху, px</label>
 
-      <input class="upload-resize-control" type="number" id="resize-size" name="size">
+      <input class="upload-resize-control" type="number" id="resize-size" name="size" min="0" value="0" step="1">
       <label class="upload-resize-label" for="resize-size">Сторона, px</label>
     </fieldset>
 
