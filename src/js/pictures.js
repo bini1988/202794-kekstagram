@@ -5,7 +5,7 @@
 
 'use strict';
 
-(function() {
+define(['./load'], function(load) {
 
   var PICTURES_URL = 'http://localhost:1507/api/pictures';
 
@@ -39,23 +39,6 @@
   var showFilterForm = function() {
 
     filtersForm.classList.remove('hidden');
-  };
-
-  var loadJSONP = function(url, callback, callbackName) {
-
-    if (!callbackName) {
-      callbackName = 'cb' + Date.now();
-    }
-
-    window[callbackName] = function(data) {
-      callback(data);
-    };
-
-    var scriptHTMLElement = document.createElement('script');
-
-    scriptHTMLElement.src = url + '?callback=' + callbackName;
-
-    document.body.appendChild(scriptHTMLElement);
   };
 
   /**
@@ -140,9 +123,9 @@
     showFilterForm();
   };
 
-  loadJSONP(PICTURES_URL, function(data) {
+  load(PICTURES_URL, function(data) {
 
     loadPictures(data);
   });
 
-})();
+});

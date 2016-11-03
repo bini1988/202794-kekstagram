@@ -1,6 +1,6 @@
 'use strict';
 
-(function() {
+define(function() {
   /**
    * @constructor
    * @param {string} image
@@ -462,4 +462,4 @@
   };
 
   window.Resizer = Resizer;
-})();
+});

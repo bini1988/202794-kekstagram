@@ -7,9 +7,8 @@
 
 'use strict';
 
-var browserCookies = require('browser-cookies');
 
-(function() {
+define(['../lib/js.cookie'], function(browserCookie) {
   /** @enum {string} */
   var FileType = {
     'GIF': '',
@@ -316,7 +315,7 @@ var browserCookies = require('browser-cookies');
     //Сохраняем значение выбранного фильтра в cookie
     var expiresDate = { expires: getCookieExpireDays() };
 
-    browserCookies.set('upload-filter', selectedFilter, expiresDate);
+    browserCookie.set('upload-filter', selectedFilter, expiresDate);
   };
 
   /**
@@ -324,7 +323,7 @@ var browserCookies = require('browser-cookies');
    */
   var initForms = function() {
 
-    var uploadFilter = browserCookies.get('upload-filter');
+    var uploadFilter = browserCookie.get('upload-filter');
 
     var checkedUploadFilter = filterForm.querySelector('input[value="' + uploadFilter + '"]');
 
@@ -344,4 +343,4 @@ var browserCookies = require('browser-cookies');
 
   initForms();
 
-})();
+});
