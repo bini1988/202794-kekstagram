@@ -12,7 +12,7 @@ define(['./load', './picture'], function(load, getPictureElement) {
   /**
    * @type {Array.<HTMLElement>}
    */
-  var pictureList = [];
+  var pictureElementList = [];
 
   /**
    * Блок с фото.
@@ -36,28 +36,36 @@ define(['./load', './picture'], function(load, getPictureElement) {
     filtersForm.classList.remove('hidden');
   };
 
-  var loadPictures = function(data) {
+  var renderPictures = function(data) {
 
     hideFilterForm();
 
-    pictureList.length = 0;
+    pictureElementList.length = 0;
 
     data.forEach(function(item) {
 
       var picture = getPictureElement(item);
 
-      pictureList.push(picture);
+      pictureElementList.push(picture);
 
       picturesElement.appendChild(picture);
 
     });
 
     showFilterForm();
+
+    return pictureElementList;
   };
 
-  load(PICTURES_URL, function(data) {
+  var loadPictures = function(callback) {
 
-    loadPictures(data);
-  });
+    load(PICTURES_URL, function(data) {
 
+      var pictureElements = renderPictures(data);
+
+      callback(data, pictureElements);
+    });
+  };
+
+  return loadPictures;
 });
