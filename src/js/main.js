@@ -3,7 +3,6 @@
 define([
   './resizer',
   './upload',
-  './pictures',
-  ], function(resizer, upload, pictures) {
+  './pictures'], function() {
 
 });

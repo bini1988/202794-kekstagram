@@ -9,6 +9,7 @@
 
 
 define(['../lib/js.cookie'], function(browserCookie) {
+
   /** @enum {string} */
   var FileType = {
     'GIF': '',
