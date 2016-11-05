@@ -3,73 +3,84 @@
 
 define(function() {
 
-  /**
-   * @type {HTMLElement}
-   */
-  var pictureTemplate = document.querySelector('#picture-template');
+  var Picture = function(pictureData) {
 
-  /**
-   * @type {HTMLElement}
-   */
-  var getPictureHTMLElement = function() {
+    this.data = pictureData;
+    this.element = this.getPictureElement();
+    this.pictureLoadTimeout = null;
+    this.pictureImage = null;
 
-    var pictureToClone = (pictureTemplate.content)
-      ? pictureTemplate.content.querySelector('.picture')
-      : pictureTemplate.querySelector('.picture');
+    this.pictureImageElement = this.element.querySelector('img');
+    this.pictureComments = this.element.querySelector('.picture-comments');
+    this.pictureLikes = this.element.querySelector('.picture-likes');
+
+    this.onPictureImageLoad = this.onPictureImageLoad.bind(this);
+    this.onPictureImageLoadError = this.onPictureImageLoadError.bind(this);
+    this.onPictureImageLoadTimeout = this.onPictureImageLoadTimeout.bind(this);
+  };
+
+  Picture.prototype.IMAGE_WIDHT = 182;
+  Picture.prototype.IMAGE_HEIGHT = 182;
+  Picture.prototype.IMAGE_LOAD_TIMEOUT = 5000;
+
+  Picture.prototype.show = function(parentNode) {
+
+    this.loadPictureImage();
+
+    this.pictureComments.textContent = this.data.comments;
+    this.pictureLikes.textContent = this.data.likes;
+
+    parentNode.appendChild(this.element);
+  };
+
+  Picture.prototype.remove = function() {
+
+    clearTimeout(this.pictureLoadTimeout);
+
+    this.element.parentNode.removeChild(this.element);
+  };
+
+  Picture.prototype.getPictureElement = function() {
+
+    var template = document.querySelector('#picture-template');
+
+    var pictureToClone = (template.content)
+      ? template.content.querySelector('.picture')
+      : template.querySelector('.picture');
 
     return pictureToClone.cloneNode(true);
   };
 
-  /**
-   * @type {HTMLElement}
-   */
-  var getPictureElement = function(data) {
+  Picture.prototype.loadPictureImage = function() {
 
-    var element = getPictureHTMLElement();
+    this.pictureImage = new Image(this.IMAGE_WIDHT, this.IMAGE_HEIGHT);
 
-    var pictureImageElement = element.querySelector('img');
-    var pictureComments = element.querySelector('.picture-comments');
-    var pictureLikes = element.querySelector('.picture-likes');
+    this.pictureImage.addEventListener('load', this.onPictureImageLoad);
+    this.pictureImage.addEventListener('error', this.onPictureImageLoadError);
 
-    pictureComments.textContent = data.comments;
-    pictureLikes.textContent = data.likes;
+    this.pictureLoadTimeout = setTimeout(this.onPictureImageLoadTimeout, this.IMAGE_LOAD_TIMEOUT);
 
-    var IMAGE_WIDHT = 182;
-    var IMAGE_HEIGHT = 182;
-    var IMAGE_LOAD_TIMEOUT = 5000;
-
-    var pictureLoadTimeout = null;
-
-    var pictureImage = new Image(IMAGE_WIDHT, IMAGE_HEIGHT);
-
-    var onPictureImageLoad = function(evt) {
-
-      clearTimeout(pictureLoadTimeout);
-
-      pictureImageElement.width = IMAGE_WIDHT;
-      pictureImageElement.height = IMAGE_HEIGHT;
-
-      pictureImageElement.src = evt.target.src;
-    };
-
-    var onPictureImageLoadError = function() {
-      element.classList.add('picture-load-failure');
-    };
-
-    var onPictureImageLoadTimeout = function() {
-      element.classList.add('picture-load-failure');
-      pictureImage.src = '';
-    };
-
-    pictureImage.addEventListener('load', onPictureImageLoad);
-    pictureImage.addEventListener('error', onPictureImageLoadError);
-
-    pictureLoadTimeout = setTimeout(onPictureImageLoadTimeout, IMAGE_LOAD_TIMEOUT);
-
-    pictureImage.src = (data.preview) ? data.preview : data.url;
-
-    return element;
+    this.pictureImage.src = (this.data.preview) ? this.data.preview : this.data.url;
   };
 
-  return getPictureElement;
+  Picture.prototype.onPictureImageLoad = function(evt) {
+
+    clearTimeout(this.pictureLoadTimeout);
+
+    this.pictureImageElement.width = this.IMAGE_WIDHT;
+    this.pictureImageElement.height = this.IMAGE_HEIGHT;
+
+    this.pictureImageElement.src = evt.target.src;
+  };
+
+  Picture.prototype.onPictureImageLoadError = function() {
+    this.element.classList.add('picture-load-failure');
+  };
+
+  Picture.prototype.onPictureImageLoadTimeout = function() {
+    this.element.classList.add('picture-load-failure');
+    this.pictureImage.src = '';
+  };
+
+  return Picture;
 });
