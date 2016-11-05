@@ -6,23 +6,21 @@ define([
   './resizer',
   './upload'], function(gallery, loadPictures) {
 
-  loadPictures(function(data, pictureElements) {
+  loadPictures(function(data, pictureList) {
 
-/**
-  * Галерея фотографий
-  */
     gallery.setPictures(data);
 
-    Array.prototype.forEach.call(pictureElements, function(item, index) {
+    Array.prototype.forEach.call(pictureList, function(item, index) {
 
       var onPictureElementsClick = function(evt) {
 
         evt.preventDefault();
+
         gallery.show(index);
       };
 
-      item.addEventListener('click', onPictureElementsClick);
+      item.element.addEventListener('click', onPictureElementsClick);
     });
-
   });
+
 });

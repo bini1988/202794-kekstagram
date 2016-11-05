@@ -5,14 +5,14 @@
 
 'use strict';
 
-define(['./load', './picture'], function(load, getPictureElement) {
+define(['./load', './picture'], function(load, Picture) {
 
   var PICTURES_URL = 'http://localhost:1507/api/pictures';
 
   /**
-   * @type {Array.<HTMLElement>}
+   * @type {Array.<Picture>}
    */
-  var pictureElementList = [];
+  var pictureList = [];
 
   /**
    * Блок с фото.
@@ -40,30 +40,27 @@ define(['./load', './picture'], function(load, getPictureElement) {
 
     hideFilterForm();
 
-    pictureElementList.length = 0;
+    pictureList.length = 0;
 
     data.forEach(function(item) {
 
-      var picture = getPictureElement(item);
+      var picture = new Picture(item);
 
-      pictureElementList.push(picture);
+      pictureList.push(picture);
 
-      picturesElement.appendChild(picture);
-
+      picture.show(picturesElement);
     });
 
     showFilterForm();
-
-    return pictureElementList;
   };
 
   var loadPictures = function(callback) {
 
     load(PICTURES_URL, function(data) {
 
-      var pictureElements = renderPictures(data);
+      renderPictures(data);
 
-      callback(data, pictureElements);
+      callback(data, pictureList);
     });
   };
 
