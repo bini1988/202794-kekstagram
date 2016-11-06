@@ -1,7 +1,7 @@
 
 'use strict';
 
-define(function() {
+define(['./utils', './base-component'], function(utils, BaseComponent) {
 
   var Gallery = function() {
 
@@ -16,6 +16,8 @@ define(function() {
 
     this.galleryOverlay = document.querySelector('.gallery-overlay');
 
+    BaseComponent.call(this, this.galleryOverlay);
+
     this.galleryClose = this.galleryOverlay.querySelector('.gallery-overlay-close');
     this.galleryImage = this.galleryOverlay.querySelector('.gallery-overlay-image');
     this.galleryLikesCount = this.galleryOverlay.querySelector('.likes-count');
@@ -29,6 +31,8 @@ define(function() {
     this.onGalleryPictureLoadError = this.onGalleryPictureLoadError.bind(this);
 
   };
+
+  utils.inherit(Gallery, BaseComponent);
 
   Gallery.prototype.setPictures = function(pictures) {
     this.pictures = pictures;
@@ -65,6 +69,13 @@ define(function() {
     this.setActivePicture(activePictureIndex);
 
     this.galleryOverlay.classList.remove('invisible');
+  };
+
+  Gallery.prototype.remove = function() {
+
+    this.hide();
+
+    BaseComponent.prototype.remote.call(this);
   };
 
   Gallery.prototype.hide = function() {

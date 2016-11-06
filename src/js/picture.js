@@ -1,14 +1,14 @@
 
 'use strict';
 
-define(['./gallery'], function(gallery) {
+define(['./gallery', './utils', './base-component'], function(gallery, utils, BaseComponent) {
 
   var Picture = function(pictureData) {
-
     this.data = pictureData;
-    this.element = this.getPictureElement();
     this.pictureLoadTimeout = null;
     this.pictureImage = null;
+
+    BaseComponent.call(this, this.getPictureElement());
 
     this.pictureImageElement = this.element.querySelector('img');
     this.pictureComments = this.element.querySelector('.picture-comments');
@@ -18,8 +18,9 @@ define(['./gallery'], function(gallery) {
     this.onPictureImageLoadError = this.onPictureImageLoadError.bind(this);
     this.onPictureImageLoadTimeout = this.onPictureImageLoadTimeout.bind(this);
     this.onPictureClick = this.onPictureClick.bind(this);
-
   };
+
+  utils.inherit(Picture, BaseComponent);
 
   Picture.prototype.IMAGE_WIDHT = 182;
   Picture.prototype.IMAGE_HEIGHT = 182;
@@ -34,7 +35,7 @@ define(['./gallery'], function(gallery) {
 
     this.element.addEventListener('click', this.onPictureClick);
 
-    parentNode.appendChild(this.element);
+    BaseComponent.prototype.show.call(this, parentNode);
   };
 
   Picture.prototype.remove = function() {
@@ -43,7 +44,7 @@ define(['./gallery'], function(gallery) {
 
     this.element.removeEventListener('click', this.onPictureClick);
 
-    this.element.parentNode.removeChild(this.element);
+    BaseComponent.prototype.remove.call(this);
   };
 
   Picture.prototype.getPictureElement = function() {
