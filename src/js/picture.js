@@ -18,6 +18,7 @@ define(['./gallery'], function(gallery) {
     this.onPictureImageLoadError = this.onPictureImageLoadError.bind(this);
     this.onPictureImageLoadTimeout = this.onPictureImageLoadTimeout.bind(this);
     this.onPictureClick = this.onPictureClick.bind(this);
+
   };
 
   Picture.prototype.IMAGE_WIDHT = 182;
