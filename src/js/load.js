@@ -2,21 +2,38 @@
 
 define(function() {
 
-  var load = function(url, callback, callbackName) {
+  var getSearchString = function(params) {
 
-    if (!callbackName) {
-      callbackName = 'cb' + Date.now();
+    return Object.keys(params).map(function(key) {
+      return key + '=' + params[key];
+    }).join('&');
+  };
+
+  var load = function(url, params, callback) {
+
+    var xhr = new XMLHttpRequest();
+
+    if (params) {
+      url += '?' + getSearchString(params);
     }
 
-    window[callbackName] = function(data) {
-      callback(data);
+    xhr.onload = function(evt) {
+      callback(JSON.parse(evt.target.response));
     };
 
-    var scriptHTMLElement = document.createElement('script');
+    xhr.onerror = function() {
+      console.warn('Ошибка при попытке доступа к ресурсу ' + url);
+    };
 
-    scriptHTMLElement.src = url + '?callback=' + callbackName;
+    xhr.ontimeout = function() {
+      console.warn('Ошибка при попытке доступа к ресурсу ' + url + '. Превышен интервал ожидания.');
+    };
 
-    document.body.appendChild(scriptHTMLElement);
+    xhr.open('GET', url);
+
+    xhr.timeout = 10000;
+
+    xhr.send();
   };
 
   return load;

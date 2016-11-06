@@ -5,64 +5,113 @@
 
 'use strict';
 
-define(['./load', './picture'], function(load, Picture) {
+define(['./utils', './load', './picture', './gallery'], function(utils, load, Picture, gallery) {
 
   var PICTURES_URL = 'http://localhost:1507/api/pictures';
+  var PAGE_SIZE = 12;
+  var THROTTLE_DELAY = 100;
+  var SCROLL_GAP = 100;
 
-  /**
-   * @type {Array.<Picture>}
-   */
-  var pictureList = [];
+  var pictures = [];
+  var curPage = 0;
+  var curFilter = 'filter-popular';
+  var isNextPageExist = true;
 
-  /**
-   * Блок с фото.
-   * @type {HTMLElement}
-   */
-  var picturesElement = document.querySelector('.pictures');
-
-  /**
-   * Форма с фильтрами.
-   * @type {HTMLFormElement}
-   */
+  var picturesContainer = document.querySelector('.pictures');
   var filtersForm = document.querySelector('.filters');
+  var footer = document.querySelector('footer');
 
-  var hideFilterForm = function() {
+  var optOnScrollWindow = utils.throttle(onScrollWindow, THROTTLE_DELAY);
 
-    filtersForm.classList.add('hidden');
-  };
+  window.addEventListener('scroll', optOnScrollWindow);
 
-  var showFilterForm = function() {
+  filtersForm.addEventListener('change', function(evt) {
+    applyFilter(evt.target.id);
+  }, true);
 
-    filtersForm.classList.remove('hidden');
-  };
 
-  var renderPictures = function(data) {
+  renderNextPage();
 
-    hideFilterForm();
+  function renderNextPage() {
 
-    pictureList.length = 0;
+    if (!isNextPageExist) {
+      return;
+    }
 
-    data.forEach(function(item) {
+    load(PICTURES_URL, getURLOptions(curPage, curFilter), function(data) {
 
-      var picture = new Picture(item);
-
-      pictureList.push(picture);
-
-      picture.show(picturesElement);
-    });
-
-    showFilterForm();
-  };
-
-  var loadPictures = function(callback) {
-
-    load(PICTURES_URL, function(data) {
+      isNextPageExist = data.length;
+      curPage++;
 
       renderPictures(data);
 
-      callback(data, pictureList);
-    });
-  };
+      gallery.setPictures(pictures);
 
-  return loadPictures;
+      if (isNextPageExist && isFooterVisible()) {
+        renderNextPage();
+      }
+    });
+  }
+
+  function renderPictures(data) {
+
+    filtersForm.classList.add('hidden');
+
+    var pictureItems = data.map(function(item) {
+      return new Picture(item);
+    });
+
+    pictureItems.forEach(function(item) {
+      item.show(picturesContainer);
+    });
+
+    Array.prototype.push.apply(pictures, pictureItems);
+
+    filtersForm.classList.remove('hidden');
+  }
+
+  function removePictures() {
+
+    pictures.forEach(function(item) {
+      item.remove();
+    });
+
+    pictures.length = 0;
+  }
+
+  function getURLOptions(page, filterName) {
+
+    return {
+      from: (page * PAGE_SIZE) || 0,
+      to: (page * PAGE_SIZE + PAGE_SIZE) || Number.MAX_VALUE,
+      filter: filterName || 'filter-popular'
+    };
+  }
+
+  function applyFilter(filterName) {
+
+    if (filterName === curFilter) {
+      return;
+    }
+
+    isNextPageExist = true;
+    curFilter = filterName;
+    curPage = 0;
+
+    removePictures();
+
+    renderNextPage();
+  }
+
+  function isFooterVisible() {
+    return (footer.getBoundingClientRect().bottom - window.innerHeight) <= SCROLL_GAP;
+  }
+
+  function onScrollWindow() {
+
+    if (isFooterVisible()) {
+      renderNextPage();
+    }
+  }
+
 });
