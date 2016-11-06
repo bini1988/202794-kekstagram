@@ -351,7 +351,7 @@ define(['../lib/js.cookie'], function(browserCookie) {
     }
   };
 
-  window.addEventListener('resizerchange', function(evt) {
+  window.addEventListener('resizerchange', function() {
 
     var constraint = currentResizer.getConstraint();
 
