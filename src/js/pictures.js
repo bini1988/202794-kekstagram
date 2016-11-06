@@ -14,7 +14,7 @@ define(['./utils', './load', './picture', './gallery'], function(utils, load, Pi
 
   var pictures = [];
   var curPage = 0;
-  var curFilter = 'filter-popular';
+  var curFilter = localStorage.getItem('curFilter') || 'filter-popular';
   var isNextPageExist = true;
 
   var picturesContainer = document.querySelector('.pictures');
@@ -24,6 +24,12 @@ define(['./utils', './load', './picture', './gallery'], function(utils, load, Pi
   var optOnScrollWindow = utils.throttle(onScrollWindow, THROTTLE_DELAY);
 
   window.addEventListener('scroll', optOnScrollWindow);
+
+  var checkedFilter = filtersForm.querySelector('input[id="' + curFilter + '"]');
+
+  if (checkedFilter) {
+    checkedFilter.checked = true;
+  }
 
   filtersForm.addEventListener('change', function(evt) {
     applyFilter(evt.target.id);
@@ -101,6 +107,8 @@ define(['./utils', './load', './picture', './gallery'], function(utils, load, Pi
     removePictures();
 
     renderNextPage();
+
+    localStorage.setItem('curFilter', curFilter);
   }
 
   function isFooterVisible() {
