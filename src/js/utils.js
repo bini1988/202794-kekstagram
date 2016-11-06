@@ -21,6 +21,7 @@ define(function() {
     };
   }
 
+
   function inherit(protoObj) {
 
     function NewObj() {}
