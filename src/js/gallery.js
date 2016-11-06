@@ -27,6 +27,7 @@ define(function() {
     this.onGalleryPictureLoad = this.onGalleryPictureLoad.bind(this);
     this.onGalleryPictureLoadTimeout = this.onGalleryPictureLoadTimeout.bind(this);
     this.onGalleryPictureLoadError = this.onGalleryPictureLoadError.bind(this);
+
   };
 
   Gallery.prototype.setPictures = function(pictures) {
