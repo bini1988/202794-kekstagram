@@ -1,7 +1,7 @@
 
 'use strict';
 
-define(function() {
+define(['./gallery'], function(gallery) {
 
   var Picture = function(pictureData) {
 
@@ -17,6 +17,7 @@ define(function() {
     this.onPictureImageLoad = this.onPictureImageLoad.bind(this);
     this.onPictureImageLoadError = this.onPictureImageLoadError.bind(this);
     this.onPictureImageLoadTimeout = this.onPictureImageLoadTimeout.bind(this);
+    this.onPictureClick = this.onPictureClick.bind(this);
   };
 
   Picture.prototype.IMAGE_WIDHT = 182;
@@ -30,12 +31,16 @@ define(function() {
     this.pictureComments.textContent = this.data.comments;
     this.pictureLikes.textContent = this.data.likes;
 
+    this.element.addEventListener('click', this.onPictureClick);
+
     parentNode.appendChild(this.element);
   };
 
   Picture.prototype.remove = function() {
 
     clearTimeout(this.pictureLoadTimeout);
+
+    this.element.removeEventListener('click', this.onPictureClick);
 
     this.element.parentNode.removeChild(this.element);
   };
@@ -80,6 +85,18 @@ define(function() {
   Picture.prototype.onPictureImageLoadTimeout = function() {
     this.element.classList.add('picture-load-failure');
     this.pictureImage.src = '';
+  };
+
+  Picture.prototype.onPictureClick = function(evt) {
+
+    evt.preventDefault();
+
+    var element = evt.currentTarget;
+    var parent = evt.currentTarget.parentNode;
+
+    var index = Array.prototype.indexOf.call(parent.childNodes, element);
+
+    gallery.show(index - 1);
   };
 
   return Picture;

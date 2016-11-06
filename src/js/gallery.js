@@ -47,7 +47,7 @@ define(function() {
       this.pictureLoadTimeout =
         setTimeout(this.onGalleryPictureLoadTimeout, this.IMAGE_LOAD_TIMEOUT);
 
-      var activePicture = this.pictures[this.activePictureIndex];
+      var activePicture = this.pictures[this.activePictureIndex].data;
 
       this.activePictureImg.src = (activePicture.preview) ? activePicture.preview : activePicture.url;
 
