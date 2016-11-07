@@ -25,6 +25,7 @@ define(['./utils', './base-component'], function(utils, BaseComponent) {
 
     this.onGalleryCloseClick = this.onGalleryCloseClick.bind(this);
     this.onGalleryImageClick = this.onGalleryImageClick.bind(this);
+    this.onGalleryLikesCountClick = this.onGalleryLikesCountClick.bind(this);
 
     this.onGalleryPictureLoad = this.onGalleryPictureLoad.bind(this);
     this.onGalleryPictureLoadTimeout = this.onGalleryPictureLoadTimeout.bind(this);
@@ -52,12 +53,12 @@ define(['./utils', './base-component'], function(utils, BaseComponent) {
       this.pictureLoadTimeout =
         setTimeout(this.onGalleryPictureLoadTimeout, this.IMAGE_LOAD_TIMEOUT);
 
-      var activePicture = this.pictures[this.activePictureIndex].data;
+      var activePictureData = this.pictures[this.activePictureIndex].data;
 
-      this.activePictureImg.src = (activePicture.preview) ? activePicture.preview : activePicture.url;
+      this.activePictureImg.src = activePictureData.getPictureUrl();
 
-      this.galleryLikesCount.textContent = activePicture.likes;
-      this.galleryCommentsCount.textContent = activePicture.comments;
+      this.galleryLikesCount.textContent = activePictureData.getLikesCount();
+      this.galleryCommentsCount.textContent = activePictureData.getCommentsCount();
     }
   };
 
@@ -65,6 +66,7 @@ define(['./utils', './base-component'], function(utils, BaseComponent) {
 
     this.galleryClose.addEventListener('click', this.onGalleryCloseClick);
     this.galleryImage.addEventListener('click', this.onGalleryImageClick);
+    this.galleryLikesCount.addEventListener('click', this.onGalleryLikesCountClick);
 
     this.setActivePicture(activePictureIndex);
 
@@ -84,6 +86,8 @@ define(['./utils', './base-component'], function(utils, BaseComponent) {
 
     this.galleryClose.removeEventListener('click', this.onGalleryCloseClick);
     this.galleryImage.removeEventListener('click', this.onGalleryImageClick);
+    this.galleryLikesCount.removeEventListener('click', this.onGalleryLikesCountClick);
+
 
     clearTimeout(this.pictureLoadTimeout);
   };
@@ -138,5 +142,20 @@ define(['./utils', './base-component'], function(utils, BaseComponent) {
     this.nextPicture();
   };
 
+  Gallery.prototype.onGalleryLikesCountClick = function() {
+
+    var activePictureData = this.pictures[this.activePictureIndex].data;
+
+    if (this.galleryLikesCount.classList.contains('likes-count-liked')) {
+
+      activePictureData.upLikesCount();
+      this.galleryLikesCount.classList.remove('likes-count-liked');
+    } else {
+
+      activePictureData.downLikesCount();
+      this.galleryLikesCount.classList.add('likes-count-liked');
+    }
+
+  };
   return new Gallery();
 });
