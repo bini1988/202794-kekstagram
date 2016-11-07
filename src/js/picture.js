@@ -18,6 +18,7 @@ define(['./gallery', './utils', './base-component'], function(gallery, utils, Ba
     this.onPictureImageLoadError = this.onPictureImageLoadError.bind(this);
     this.onPictureImageLoadTimeout = this.onPictureImageLoadTimeout.bind(this);
     this.onPictureClick = this.onPictureClick.bind(this);
+    this.onPictureDataLikesChange = this.onPictureDataLikesChange.bind(this);
   };
 
   utils.inherit(Picture, BaseComponent);
@@ -35,6 +36,8 @@ define(['./gallery', './utils', './base-component'], function(gallery, utils, Ba
 
     this.element.addEventListener('click', this.onPictureClick);
 
+    this.data.onLikesChange = this.onPictureDataLikesChange;
+
     BaseComponent.prototype.show.call(this, parentNode);
   };
 
@@ -43,6 +46,8 @@ define(['./gallery', './utils', './base-component'], function(gallery, utils, Ba
     clearTimeout(this.pictureLoadTimeout);
 
     this.element.removeEventListener('click', this.onPictureClick);
+
+    this.data.onLikesChange = null;
 
     BaseComponent.prototype.remove.call(this);
   };
@@ -99,6 +104,11 @@ define(['./gallery', './utils', './base-component'], function(gallery, utils, Ba
     var index = Array.prototype.indexOf.call(parent.childNodes, element);
 
     gallery.show(index - 1);
+  };
+
+  Picture.prototype.onPictureDataLikesChange = function(pictureData) {
+
+    this.pictureLikes.textContent = pictureData.getLikesCount();
   };
 
   return Picture;

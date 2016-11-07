@@ -105,7 +105,8 @@ define(function() {
 
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
-      var STEP_WITH = 25;
+      var STEP_WITH_RATIO = 0.1;
+      //var STEP_WITH = 15;
       //var DOT_RADIUS = 2;
 
       var sideSize = this._resizeConstraint.side - this._ctx.lineWidth;
@@ -114,7 +115,7 @@ define(function() {
 
       //this._dotedRect(-offsetX, -offsetY, sideSize, sideSize, STEP_WITH, DOT_RADIUS, '#ffe753');
 
-      this._triangleRect(-offsetX, -offsetY, sideSize, sideSize, STEP_WITH, '#ffe753');
+      this._triangleRect(-offsetX, -offsetY, sideSize, sideSize, sideSize * STEP_WITH_RATIO, '#ffe753');
 
       // Отрисовка полупрозрачного слоя вокруг жёлтой рамки кадрирования
       this._drawOverlay(this._container.width, this._container.height, this._resizeConstraint.side, 'rgba(0, 0, 0, 0.8)');

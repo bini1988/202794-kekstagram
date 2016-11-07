@@ -30,7 +30,6 @@ define(['./utils', './base-component'], function(utils, BaseComponent) {
     this.onGalleryPictureLoad = this.onGalleryPictureLoad.bind(this);
     this.onGalleryPictureLoadTimeout = this.onGalleryPictureLoadTimeout.bind(this);
     this.onGalleryPictureLoadError = this.onGalleryPictureLoadError.bind(this);
-
   };
 
   utils.inherit(Gallery, BaseComponent);
@@ -59,6 +58,7 @@ define(['./utils', './base-component'], function(utils, BaseComponent) {
 
       this.galleryLikesCount.textContent = activePictureData.getLikesCount();
       this.galleryCommentsCount.textContent = activePictureData.getCommentsCount();
+      this.galleryLikesCount.classList.toggle('likes-count-liked', activePictureData.isLiked());
     }
   };
 
@@ -146,16 +146,13 @@ define(['./utils', './base-component'], function(utils, BaseComponent) {
 
     var activePictureData = this.pictures[this.activePictureIndex].data;
 
-    if (this.galleryLikesCount.classList.contains('likes-count-liked')) {
+    var likesCount = (activePictureData.isLiked())
+      ? activePictureData.downLikesCount()
+      : activePictureData.upLikesCount();
 
-      activePictureData.upLikesCount();
-      this.galleryLikesCount.classList.remove('likes-count-liked');
-    } else {
-
-      activePictureData.downLikesCount();
-      this.galleryLikesCount.classList.add('likes-count-liked');
-    }
-
+    this.galleryLikesCount.textContent = likesCount;
+    this.galleryLikesCount.classList.toggle('likes-count-liked', activePictureData.isLiked());
   };
+
   return new Gallery();
 });
