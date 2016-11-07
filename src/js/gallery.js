@@ -142,7 +142,7 @@ define(['./utils', './base-component'], function(utils, BaseComponent) {
     this.nextPicture();
   };
 
-  Gallery.prototype.onGalleryLikesCountClick = function(evt) {
+  Gallery.prototype.onGalleryLikesCountClick = function() {
 
     var activePictureData = this.pictures[this.activePictureIndex].data;
 

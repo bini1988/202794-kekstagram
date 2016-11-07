@@ -1,11 +1,7 @@
 
 'use strict';
 
-define(['./gallery',
-  './utils',
-  './base-component'
-  ],
-  function(gallery, utils, BaseComponent) {
+define(['./gallery', './utils', './base-component'], function(gallery, utils, BaseComponent) {
 
   var Picture = function(pictureData) {
     this.data = pictureData;

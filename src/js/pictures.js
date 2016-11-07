@@ -5,13 +5,7 @@
 
 'use strict';
 
-define(['./utils',
-  './load',
-  './picture',
-  './picture-data',
-  './gallery'
-  ],
-  function(utils, load, Picture, PictureData, gallery) {
+define(['./utils', './load', './picture', './picture-data', './gallery'], function(utils, load, Picture, PictureData, gallery) {
 
   var PICTURES_URL = 'http://localhost:1507/api/pictures';
   var PAGE_SIZE = 12;
