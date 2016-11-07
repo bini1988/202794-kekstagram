@@ -1,7 +1,11 @@
 
 'use strict';
 
-define(['./gallery', './utils', './base-component'], function(gallery, utils, BaseComponent) {
+define(['./gallery',
+  './utils',
+  './base-component'
+  ],
+  function(gallery, utils, BaseComponent) {
 
   var Picture = function(pictureData) {
     this.data = pictureData;
@@ -30,8 +34,8 @@ define(['./gallery', './utils', './base-component'], function(gallery, utils, Ba
 
     this.loadPictureImage();
 
-    this.pictureComments.textContent = this.data.comments;
-    this.pictureLikes.textContent = this.data.likes;
+    this.pictureComments.textContent = this.data.getCommentsCount();
+    this.pictureLikes.textContent = this.data.getLikesCount();
 
     this.element.addEventListener('click', this.onPictureClick);
 
@@ -67,7 +71,7 @@ define(['./gallery', './utils', './base-component'], function(gallery, utils, Ba
 
     this.pictureLoadTimeout = setTimeout(this.onPictureImageLoadTimeout, this.IMAGE_LOAD_TIMEOUT);
 
-    this.pictureImage.src = (this.data.preview) ? this.data.preview : this.data.url;
+    this.pictureImage.src = this.data.getPictureUrl();
   };
 
   Picture.prototype.onPictureImageLoad = function(evt) {
