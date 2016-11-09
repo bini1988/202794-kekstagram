@@ -52,6 +52,7 @@ define(['./utils', './load', './picture', './picture-data', './gallery'], functi
       renderPictures(data);
 
       gallery.setPictures(pictures);
+      gallery.restoreFromHash();
 
       if (isNextPageExist && isFooterVisible()) {
         renderNextPage();

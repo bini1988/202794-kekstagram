@@ -1,7 +1,7 @@
 
 'use strict';
 
-define(['./gallery', './utils', './base-component'], function(gallery, utils, BaseComponent) {
+define(['./utils', './base-component'], function(utils, BaseComponent) {
 
   var Picture = function(pictureData) {
     this.data = pictureData;
@@ -103,7 +103,7 @@ define(['./gallery', './utils', './base-component'], function(gallery, utils, Ba
 
     var index = Array.prototype.indexOf.call(parent.childNodes, element);
 
-    gallery.show(index - 1);
+    location.hash = '#gallery/photos/' + index;
   };
 
   Picture.prototype.onPictureDataLikesChange = function(pictureData) {
