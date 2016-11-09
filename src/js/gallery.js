@@ -30,6 +30,9 @@ define(['./utils', './base-component'], function(utils, BaseComponent) {
     this.onGalleryPictureLoad = this.onGalleryPictureLoad.bind(this);
     this.onGalleryPictureLoadTimeout = this.onGalleryPictureLoadTimeout.bind(this);
     this.onGalleryPictureLoadError = this.onGalleryPictureLoadError.bind(this);
+    this.onHashChange = this.onHashChange.bind(this);
+
+    window.addEventListener('hashchange', this.onHashChange);
   };
 
   utils.inherit(Gallery, BaseComponent);
@@ -90,6 +93,10 @@ define(['./utils', './base-component'], function(utils, BaseComponent) {
 
 
     clearTimeout(this.pictureLoadTimeout);
+
+    if (location.hash.match(/#gallery\/(\S+)/)) {
+      location.hash = '#';
+    }
   };
 
   Gallery.prototype.getValidPictureIndex = function(pictureIndex) {
@@ -103,14 +110,42 @@ define(['./utils', './base-component'], function(utils, BaseComponent) {
 
     var index = this.getValidPictureIndex(this.activePictureIndex + 1);
 
-    this.setActivePicture(index);
+    location.hash = '#gallery/photos/' + (index + 1);
   };
 
   Gallery.prototype.previousPicture = function() {
 
     var index = this.getValidPictureIndex(this.activePictureIndex - 1);
 
-    this.setActivePicture(index);
+    location.hash = '#gallery/photos/' + (index + 1);
+  };
+
+  Gallery.prototype.restoreFromHash = function() {
+
+    if (!location.hash.match(/#gallery\/(\S+)/)) {
+      this.hide();
+      return;
+    }
+
+    var locationArgs = location.hash.split('/');
+    var args = {};
+
+    locationArgs.forEach(function(item, index) {
+      args[item] = index;
+    });
+
+    var pictureIndex = locationArgs[args['photos'] + 1];
+
+    if (pictureIndex && !isNaN(pictureIndex)) {
+
+      pictureIndex = this.getValidPictureIndex(pictureIndex - 1);
+
+      this.show(pictureIndex);
+
+    } else {
+
+      this.hide();
+    }
   };
 
   Gallery.prototype.onGalleryPictureLoad = function(evt) {
@@ -152,6 +187,10 @@ define(['./utils', './base-component'], function(utils, BaseComponent) {
 
     this.galleryLikesCount.textContent = likesCount;
     this.galleryLikesCount.classList.toggle('likes-count-liked', activePictureData.isLiked());
+  };
+
+  Gallery.prototype.onHashChange = function() {
+    this.restoreFromHash();
   };
 
   return new Gallery();
